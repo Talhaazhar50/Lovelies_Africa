@@ -17,7 +17,7 @@ import ConnectPage from "./MainPage/ConnectPage";
 import DisconnectPage from "./MainPage/DisconnectPage.js"
 import NewAccountPage from "./MainPage/NewAccountPage";
 import BoardPage from "./MainPage/BoardPage";
-
+import Protected from "./MainPage/Protected"
 
 function App() {
   return (
@@ -37,7 +37,14 @@ function App() {
             <Route path="/legalnotice" element={<LegalNotice />} />
             <Route path="/privatepolicy" element={<PrivatePolicy />} />
             <Route path="/refundpolicy" element={<RefundPolicy />} />
-            <Route path="/account" element={<BoardPage />} />
+            <Route
+						path="/account"
+						element={
+							<Protected>
+								<BoardPage />
+							</Protected>
+						}
+					/>
             <Route path="/newAccountPage" element={<NewAccountPage />} />
             <Route path="/connectPage" element={<ConnectPage />} />
             <Route path="/disconnectPage" element={<DisconnectPage />} />
