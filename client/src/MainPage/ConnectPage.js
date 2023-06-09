@@ -2,11 +2,14 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import axios from "axios";
 
 //Constantes
 const ConnectPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+	const [values, setValues] = useState({
+		email: "",
+		password: "",
+	});
   const [message, setMessage] = useState("");
 
   //Redirection
@@ -15,52 +18,27 @@ const ConnectPage = () => {
   //Appel d'action
   const dispatch = useDispatch();
 
-  //Gestion de la mise à jour des valeurs par l'event
-  const changeEmail = (e) => {
-    setEmail(e.target.value);
-  };
-
-  const changePassword = (e) => {
-    setPassword(e.target.value);
-  };
+ 
 
   //Envoi des informations dans la BDD
-  const submit = () => {
-    //Valeurs à recupérer dans la BDD
-    let datas = {
-      email: email,
-      password: password,
-    };
-
+  const submit = (e) => {
+    
+    e.preventDefault();
+		axios
+			.post("http://localhost:9000/connectPage", {
+				email: values.email,
+				password: values.pass,
+			})
     // Gestion de la requête
-    let req = new Request("http://localhost:9000/connectPage", {
-      method: "post",
-      //body natif à l'objet request
-      body: JSON.stringify(datas),
-      //Gestion des renvois des informations sous format json avec la propriété accept
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    });
+    .then((res) => {
+      localStorage.setItem("token", res.data.token);
+      navigate("/account");
+    })
+    .catch((err) => console.error(err));
+};
+  
 
-    fetch(req)
-      .then((response) => response.json())
-      .then((response) => {
-        //Renvoi des valeurs pour le retour de réponse des identifiants et ID
-        if (response.reponse) {
-          // Réponse = userLogin = true
-          dispatch({
-            type: "connect_users",
-            id: response.id,
-          });
-          navigate("/account");
-          //Ou réponse = userLogin = false => envoi d'un message d'erreur
-        } else {
-          setMessage(response.message);
-        }
-      });
-  };
+   
 
   return (
     <>
@@ -75,22 +53,25 @@ const ConnectPage = () => {
         <p>{message}</p>
       </div>
 
-      <form>
+      <form onSubmit={submit}>
         <div>
           <label htmlFor="email">Email</label>
-          <input type="email" id="email" value={email} onChange={changeEmail} />
+          <input type="email" id="email" onChange={(e) =>
+											setValues({ ...values, email: e.target.value })
+										}/>
         </div>
         <div>
           <label htmlFor="password">Mot de passe</label>
           <input
             type="password"
             id="password"
-            value={password}
-            onChange={changePassword}
+            onChange={(e) =>
+              setValues({ ...values, password: e.target.value })
+            }
           />
         </div>
         <div>
-        <button className="link" type="button" onClick={submit}>
+        <button className="link" type="submit">
           Se connecter
         </button>
         </div>
